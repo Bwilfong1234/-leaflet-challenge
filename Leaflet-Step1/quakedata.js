@@ -1,5 +1,5 @@
 const link = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
-let circles = [];
+let circle = [];
 let m = [];
 let geojson;
 
@@ -34,43 +34,49 @@ function markerColor(mag) {
 function createF(earthquakeData) {
 
 
-    function onFeature(feature, layer) {
+
+    function onEachFeature(feature, layer) {
 
         let lats = feature.geometry.coordinates[1];
         let longs = feature.geometry.coordinates[0]
 
         m = feature.properties.mag;
 
-        circles.push(
+        circle.push(
             L.circle([lats, longs], {
                 stroke: false,
                 fillOpacity: 0.75,
                 color: "black",
-                fillColor: markeCrolor(feature.properties.mag),
+                fillColor: markerColor(feature.properties.mag),
                 radius: markerSize(feature.properties.mag)
             }).bindPopup("<p>" + feature.properties.place +
                 "  Magnitude : " + feature.properties.mag + "</p>")
         );
+        console.log()
 
 
-        console.log(feature.properties.mag)
+
     }
 
     const earthquakes = L.geoJSON(earthquakeData, {
-        onFeature: onFeature
+        onEachFeature: onEachFeature
     });
+
 
 
     createMap(earthquakes);
 }
 
+
 function createMap(earthquakes) {
 
 
-    var streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?" +
+
+    const streetmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/outdoors-v10/tiles/256/{z}/{x}/{y}?" +
         "access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw", );
 
-    var darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?" +
+
+    const darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/256/{z}/{x}/{y}?" +
         "access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw", {
             attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
             maxZoom: 18,
@@ -78,16 +84,17 @@ function createMap(earthquakes) {
         });
 
 
-    var baseMaps = {
+
+    const baseMaps = {
         "Street Map": streetmap,
         "Dark Map": darkmap
     };
 
 
-    var quakeLayer = L.layerGroup(circles);
+    const quakeLayer = L.layerGroup(circle);
 
 
-    var overlayMaps = {
+    const overlayMaps = {
         "markers": earthquakes,
         "earthquakes": quakeLayer
     }
